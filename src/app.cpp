@@ -39,30 +39,26 @@ void calc(Task& task)
     switch (task.operation)
     {
         case '+':
-            task.result = libmath::add(task.val1, task.val2);
-            task.status = 0;
+            task.status = libmath::add(task.val1, task.val2, task.result);
             break;
         case '-':
-            task.result = libmath::sub(task.val1, task.val2);
-            task.status = 0;
+            task.status = libmath::sub(task.val1, task.val2, task.result);
             break;
         case '*':
-            task.result = libmath::multiplication(task.val1, task.val2);
-            task.status = 0;
+            task.status =
+                libmath::multiplication(task.val1, task.val2, task.result);
             break;
         case '/':
             task.status = libmath::division(task.val1, task.val2, task.result);
             break;
         case '^':
-            task.result = libmath::power(task.val1, task.val2);
-            task.status = 0;
+            task.status = libmath::power(task.val1, task.val2, task.result);
             break;
         case '!':
-            task.result = libmath::factorial(task.val1);
-            task.status = 0;
+            task.status = libmath::factorial(task.val1, task.result);
             break;
         default:
-            task.status = 3;
+            task.status = 5;
     }
 }
 
@@ -89,6 +85,12 @@ void output(const Task& task)
             std::cout << "Error! Division by zero is not allowed" << std::endl;
             break;
         case 3:
+            std::cout << "Error! The degree cannot be < 0" << std::endl;
+            break;
+        case 4:
+            std::cout << "Error! The factorial cannot be < 0" << std::endl;
+            break;
+        case 5:
             std::cout << "Error! No operation" << std::endl;
             break;
         default:
