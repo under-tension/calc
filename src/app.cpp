@@ -101,6 +101,7 @@ void output(const Task& task)
 void print_help(const char* prog)
 {
     std::cout << "Usage: " << prog << " <number1> <operation> <number2>\n"
+              << "For factorial operation: <number>!\n"
               << "  -v, --version       show version\n"
               << "  -h, --help          show this help message\n";
 }
@@ -115,6 +116,7 @@ int process_flags(int argc, char** argv)
     int opt;
     int long_index = 0;
 
+    // NOLINTNEXTLINE(altera-unroll-loops)
     while ((opt = getopt_long(argc, argv, short_opts, long_opts,
                               &long_index)) != -1)
     {
