@@ -1,11 +1,10 @@
 #pragma once
 
-#include "libmath.h"
-
 #include <getopt.h>
-
-#include <cstring>
-#include <iostream>
+#include <libmath.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define MIN_ARG_COUNT 4
 

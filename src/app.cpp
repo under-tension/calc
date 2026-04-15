@@ -16,9 +16,9 @@ void parse(int argc, char** argv, Task& task)
 
     if (argc == MIN_ARG_COUNT)
     {
-        task.val1 = std::atoi(argv[1]);
+        task.val1 = atoi(argv[1]);
         task.operation = *argv[2];
-        task.val2 = std::atoi(argv[3]);
+        task.val2 = atoi(argv[3]);
         task.status = 0;
     }
     else if (argc == 2 && argv[1][strlen(argv[1]) - 1] == '!')
@@ -70,40 +70,40 @@ void output(const Task& task)
         case 0:
             if (task.operation == '!')
             {
-                std::cout << task.val1 << "! = " << task.result << std::endl;
+                printf("%d! = %d\n", task.val1, task.result);
             }
             else
             {
-                std::cout << task.val1 << " " << task.operation << " "
-                          << task.val2 << " = " << task.result << std::endl;
+                printf("%d %c %d = %d\n", task.val1, task.operation, task.val2,
+                       task.result);
             }
             break;
         case 1:
-            std::cout << "Error! Not enough arguments" << std::endl;
+            printf("Error! Not enough arguments\n");
             break;
         case 2:
-            std::cout << "Error! Division by zero is not allowed" << std::endl;
+            printf("Error! Division by zero is not allowed\n");
             break;
         case 3:
-            std::cout << "Error! The degree cannot be < 0" << std::endl;
+            printf("Error! The degree cannot be < 0\n");
             break;
         case 4:
-            std::cout << "Error! The factorial cannot be < 0" << std::endl;
+            printf("Error! The factorial cannot be < 0\n");
             break;
         case 5:
-            std::cout << "Error! No operation" << std::endl;
+            printf("Error! No operation\n");
             break;
         default:
-            std::cout << "Unknown error at division operation" << std::endl;
+            printf("Unknown error at division operation\n");
     }
 }
 
 void print_help(const char* prog)
 {
-    std::cout << "Usage: " << prog << " <number1> <operation> <number2>\n"
-              << "For factorial operation: <number>!\n"
-              << "  -v, --version       show version\n"
-              << "  -h, --help          show this help message\n";
+    printf("Usage: %s <number1> <operation> <number2>\n", prog);
+    printf("For factorial operation: <number>!\n");
+    printf("  -v, --version       show version\n");
+    printf("  -h, --help          show this help message\n");
 }
 
 int process_flags(int argc, char** argv)
@@ -123,13 +123,13 @@ int process_flags(int argc, char** argv)
         switch (opt)
         {
             case 'v':
-                std::cout << "Version 1.0\n";
+                printf("Version 1.0\n");
                 return 0;
             case 'h':
                 print_help(argv[0]);
                 return 0;
             default:
-                std::cout << "Unknown flag " << opt << std::endl;
+                printf("Unknown flag %c\n", opt);
                 return -1;
         }
     }

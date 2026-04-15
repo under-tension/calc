@@ -17,12 +17,9 @@ add_executable(calc
     src/main.cpp
 )
 
-target_link_libraries(calc
-    PRIVATE
-        math
-)
+target_link_libraries(calc PRIVATE libmath)
 
-target_include_directories(math
+target_include_directories(calc
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
