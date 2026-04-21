@@ -12,12 +12,20 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(libmath)
 
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
 add_executable(calc
-    src/app.cpp
     src/main.cpp
+    src/Calculator.cpp
+    src/Checker.cpp
+    src/Runner.cpp
+    src/printers/ConsolePrinter.cpp
+    src/parsers/JsonParser.cpp
 )
 
 target_link_libraries(calc PRIVATE libmath)
+target_link_libraries(calc PRIVATE nlohmann_json::nlohmann_json)
 
 target_include_directories(calc
     PUBLIC
