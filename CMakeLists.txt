@@ -15,6 +15,11 @@ FetchContent_MakeAvailable(libmath)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
+FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip)
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+set(GOOGLETEST_USE_INSTALL OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
 add_executable(calc
     src/main.cpp
     src/Calculator.cpp
@@ -36,6 +41,41 @@ install(TARGETS calc
     RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+enable_testing()
+
+add_executable(
+  tests
+  src/Calculator.cpp
+  src/Checker.cpp
+  src/parsers/JsonParser.cpp
+  tests/CalculatorTest.cpp
+  tests/CheckerTest.cpp
+  tests/parsers/JsonParserTest.cpp
+)
+
+target_include_directories(tests
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(
+  tests
+  PRIVATE GTest::gtest_main
+)
+
+target_link_libraries(
+    tests 
+    PRIVATE libmath
+)
+
+target_link_libraries(
+    tests 
+    PRIVATE nlohmann_json::nlohmann_json
+)
+
+include(GoogleTest)
+gtest_discover_tests(tests)
+
 option(ENABLE_CLANG_FORMAT "Enable clang-format" OFF)
 if(ENABLE_CLANG_FORMAT)
     find_program(CLANG_FORMAT_PATH NAMES clang-format-19 clang-format REQUIRED)
@@ -44,6 +84,7 @@ if(ENABLE_CLANG_FORMAT)
     file(GLOB_RECURSE CLANG_FORMAT_SRC CONFIGURE_DEPENDS
         include/*.h
         src/*.cpp
+        tests/*.cpp
     )
 
     add_custom_target(calc-clang-format-target

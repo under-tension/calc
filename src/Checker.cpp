@@ -6,21 +6,21 @@ void Checker::check(const Task& task)
 {
     switch (task.status)
     {
-        case 0:
+        case static_cast<int>(StatusTask::OK):
             break;
-        case 1:
+        case static_cast<int>(StatusTask::NOT_ENOUGH_ARGS):
             throw std::runtime_error("Not enough arguments");
             break;
-        case 2:
+        case static_cast<int>(StatusTask::DIVISION_BY_ZERO):
             throw std::runtime_error("Error! Division by zero is not allowed");
             break;
-        case 3:
+        case static_cast<int>(StatusTask::NEGATIVE_DEGREE):
             throw std::runtime_error("Error! The degree cannot be < 0");
             break;
-        case 4:
+        case static_cast<int>(StatusTask::NEGATIVE_FACTORIAL):
             throw std::runtime_error("Error! The factorial cannot be < 0");
             break;
-        case 5:
+        case static_cast<int>(StatusTask::NO_OPERATION):
             throw std::runtime_error("Error! No operation");
             break;
         default:
