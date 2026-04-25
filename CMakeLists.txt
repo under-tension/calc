@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.25)
 
 project(calc)
 
@@ -10,15 +10,28 @@ FetchContent_Declare(
     GIT_TAG master
 )
 
-FetchContent_MakeAvailable(libmath)
+FetchContent_Declare(
+    json
+    URL
+    https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz
+)
 
-FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
-FetchContent_MakeAvailable(json)
+FetchContent_Declare(
+    googletest
+    URL
+    https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
 
-FetchContent_Declare(googletest URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip)
 set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 set(GOOGLETEST_USE_INSTALL OFF CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
+
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.17.0
+)
+
+FetchContent_MakeAvailable(libmath json spdlog googletest)
 
 add_executable(calc
     src/main.cpp
@@ -27,10 +40,15 @@ add_executable(calc
     src/Runner.cpp
     src/printers/ConsolePrinter.cpp
     src/parsers/JsonParser.cpp
+    src/App.cpp
+    src/loggers/SpdLogger.cpp
 )
 
-target_link_libraries(calc PRIVATE libmath)
-target_link_libraries(calc PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(calc PRIVATE
+    libmath
+    nlohmann_json::nlohmann_json
+    spdlog::spdlog
+)
 
 target_include_directories(calc
     PUBLIC
@@ -58,19 +76,10 @@ target_include_directories(tests
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-target_link_libraries(
-  tests
-  PRIVATE GTest::gtest_main
-)
-
-target_link_libraries(
-    tests 
-    PRIVATE libmath
-)
-
-target_link_libraries(
-    tests 
-    PRIVATE nlohmann_json::nlohmann_json
+target_link_libraries(tests PRIVATE
+    libmath
+    GTest::gtest_main
+    nlohmann_json::nlohmann_json
 )
 
 include(GoogleTest)

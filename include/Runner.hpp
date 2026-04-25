@@ -3,6 +3,7 @@
 #include "Task.hpp"
 #include "Checker.hpp"
 #include "Calculator.hpp"
+#include "App.hpp"
 #include "parsers/BaseParser.hpp"
 #include "parsers/JsonParser.hpp"
 #include "printers/BasePrinter.hpp"
@@ -14,8 +15,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define MIN_ARG_COUNT 4
 
 namespace app
 {

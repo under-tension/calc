@@ -4,30 +4,36 @@ namespace app
 {
 void Runner::run(int argc, char** argv)
 {
-    int flag_res = process_flags(argc, argv);
-    if (flag_res > -1)
-    {
-        return;
-    }
-
-    std::string json_str;
-    for (int i = optind; i < argc; ++i)
-    {
-        if (!json_str.empty())
-            json_str += ' ';
-        json_str += argv[i];
-    }
-    if (json_str.empty())
-    {
-        std::cerr << "No JSON input provided\n";
-        print_help(argv[0]);
-        return;
-    }
-
-    app::Task task;
-
     try
     {
+        int flag_res = process_flags(argc, argv);
+        if (flag_res > -1)
+        {
+            return;
+        }
+
+        std::string json_str;
+
+        // NOLINTNEXTLINE(altera-unroll-loops)
+        for (int i = optind; i < argc; ++i)
+        {
+            if (!json_str.empty())
+            {
+                json_str += ' ';
+            }
+
+            json_str += argv[i];
+        }
+
+        if (json_str.empty())
+        {
+            App::error("No JSON input provided");
+            print_help(argv[0]);
+            return;
+        }
+
+        app::Task task;
+
         parser->parse(json_str, task);
         calculator.calculate(task);
         checker.check(task);
@@ -35,8 +41,7 @@ void Runner::run(int argc, char** argv)
     }
     catch (const std::exception& e)
     {
-        std::cerr << e.what() << std::endl;
-        return;
+        App::error(e.what());
     }
 }
 
