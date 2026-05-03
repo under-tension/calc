@@ -6,7 +6,7 @@
 
 namespace printers
 {
-class BasePrinter
+class IPrinter
 {
 public:
     virtual void print(const app::Task& task) = 0;

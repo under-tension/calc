@@ -5,7 +5,7 @@
 
 namespace parsers
 {
-class BaseParser
+class IParser
 {
 public:
   virtual void parse(std::string input, app::Task& task) = 0;

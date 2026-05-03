@@ -1,6 +1,6 @@
 #pragma once
 
-#include "BaseLogger.hpp"
+#include "ILogger.hpp"
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
@@ -9,7 +9,7 @@
 
 namespace loggers
 {
-class SpdLogger : public BaseLogger
+class SpdLogger : public ILogger
 {
 public:
     static SpdLogger& GetInstance();

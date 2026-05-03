@@ -2,7 +2,7 @@
 
 namespace app
 {
-loggers::BaseLogger& App::logger()
+loggers::ILogger& App::logger()
 {
     return loggers::SpdLogger::GetInstance();
 }

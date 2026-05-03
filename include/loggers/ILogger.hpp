@@ -4,7 +4,7 @@
 
 namespace loggers
 {
-class BaseLogger
+class ILogger
 {
 public:
     virtual void error(const std::string& message) = 0;
