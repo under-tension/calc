@@ -9,7 +9,7 @@ namespace printers
 {
 class ConsolePrinter : public IPrinter
 {
-public:
+  public:
     virtual void print(const app::Task& task) override;
 };
-}
+} // namespace printers

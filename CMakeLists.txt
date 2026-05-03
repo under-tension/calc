@@ -37,10 +37,9 @@ add_executable(calc
     src/main.cpp
     src/Calculator.cpp
     src/Checker.cpp
-    src/Runner.cpp
+    src/application/ConsoleApplication.cpp
     src/printers/ConsolePrinter.cpp
     src/parsers/JsonParser.cpp
-    src/App.cpp
     src/loggers/SpdLogger.cpp
 )
 
@@ -91,7 +90,7 @@ if(ENABLE_CLANG_FORMAT)
     message(STATUS "Found clang-format: ${CLANG_FORMAT_PATH}")
 
     file(GLOB_RECURSE CLANG_FORMAT_SRC CONFIGURE_DEPENDS
-        include/*.h
+        include/*.hpp
         src/*.cpp
         tests/*.cpp
     )

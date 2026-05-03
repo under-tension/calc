@@ -1,8 +1,40 @@
-#include "Runner.hpp"
+#include "application/ConsoleApplication.hpp"
 
 namespace app
 {
-void Runner::run(int argc, char** argv)
+ConsoleApplication::ConsoleApplication(
+    std::unique_ptr<parsers::IParser> p, Checker checker, Calculator calc,
+    std::unique_ptr<printers::IPrinter> printer) :
+    parser(std::move(p)), checker(std::move(checker)),
+    calculator(std::move(calc)), printer(std::move(printer))
+{}
+
+loggers::ILogger& ConsoleApplication::logger()
+{
+    return loggers::SpdLogger::GetInstance();
+}
+
+void ConsoleApplication::error(const std::string& message)
+{
+    loggers::SpdLogger::GetInstance().error(message);
+}
+
+void ConsoleApplication::warn(const std::string& message)
+{
+    loggers::SpdLogger::GetInstance().warn(message);
+}
+
+void ConsoleApplication::info(const std::string& message)
+{
+    loggers::SpdLogger::GetInstance().info(message);
+}
+
+ConsoleApplication ConsoleApplication::init()
+{
+    return ConsoleApplication();
+}
+
+void ConsoleApplication::run(int argc, char** argv)
 {
     try
     {
@@ -27,7 +59,7 @@ void Runner::run(int argc, char** argv)
 
         if (json_str.empty())
         {
-            App::error("No JSON input provided");
+            ConsoleApplication::error("No JSON input provided");
             print_help(argv[0]);
             return;
         }
@@ -41,11 +73,11 @@ void Runner::run(int argc, char** argv)
     }
     catch (const std::exception& e)
     {
-        App::error(e.what());
+        ConsoleApplication::error(e.what());
     }
 }
 
-void Runner::print_help(const char* prog)
+void ConsoleApplication::print_help(const char* prog)
 {
     printf("Usage: %s <number1> <operation> <number2>\n", prog);
     printf("For factorial operation: <number>!\n");
@@ -53,7 +85,7 @@ void Runner::print_help(const char* prog)
     printf("  -h, --help          show this help message\n");
 }
 
-int Runner::process_flags(int argc, char** argv)
+int ConsoleApplication::process_flags(int argc, char** argv)
 {
     const char* short_opts = "vh";
     const option long_opts[] = {{"version", no_argument, nullptr, 'v'},

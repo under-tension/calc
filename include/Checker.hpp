@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Task.hpp"
+
 #include <stdexcept>
 
 namespace app
 {
 class Checker
 {
-public:
+  public:
     void check(const Task& task);
 };
 } // namespace app

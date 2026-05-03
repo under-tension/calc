@@ -8,7 +8,7 @@ namespace printers
 {
 class IPrinter
 {
-public:
+  public:
     virtual void print(const app::Task& task) = 0;
 };
-}
+} // namespace printers

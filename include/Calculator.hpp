@@ -8,7 +8,7 @@ namespace app
 {
 class Calculator
 {
-public:
+  public:
     void calculate(Task& task);
 };
 } // namespace app

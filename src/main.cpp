@@ -1,11 +1,11 @@
-#include "Runner.hpp"
+#include "application/ConsoleApplication.hpp"
 
 using json = nlohmann::json;
 
 int main(int argc, char** argv)
 {
-    app::Runner runner = app::Runner();
-    runner.run(argc, argv);
+    app::ConsoleApplication app = app::ConsoleApplication::init();
+    app.run(argc, argv);
 
     return 0;
 }
