@@ -38,9 +38,9 @@ add_executable(calc
     src/Calculator.cpp
     src/Checker.cpp
     src/application/ConsoleApplication.cpp
-    src/printers/ConsolePrinter.cpp
-    src/parsers/JsonParser.cpp
-    src/loggers/SpdLogger.cpp
+    src/printer/ConsolePrinter.cpp
+    src/parser/JsonParser.cpp
+    src/logger/SpdLogger.cpp
 )
 
 target_link_libraries(calc PRIVATE
@@ -64,10 +64,10 @@ add_executable(
   tests
   src/Calculator.cpp
   src/Checker.cpp
-  src/parsers/JsonParser.cpp
+  src/parser/JsonParser.cpp
   tests/CalculatorTest.cpp
   tests/CheckerTest.cpp
-  tests/parsers/JsonParserTest.cpp
+  tests/parser/JsonParserTest.cpp
 )
 
 target_include_directories(tests

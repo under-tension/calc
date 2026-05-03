@@ -1,4 +1,4 @@
-#include "parsers/JsonParser.hpp"
+#include "parser/JsonParser.hpp"
 
 namespace parsers
 {

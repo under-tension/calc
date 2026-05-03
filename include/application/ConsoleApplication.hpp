@@ -4,12 +4,12 @@
 #include "Checker.hpp"
 #include "IApplication.hpp"
 #include "Task.hpp"
-#include "loggers/ILogger.hpp"
-#include "loggers/SpdLogger.hpp"
-#include "parsers/IParser.hpp"
-#include "parsers/JsonParser.hpp"
-#include "printers/ConsolePrinter.hpp"
-#include "printers/IPrinter.hpp"
+#include "logger/ILogger.hpp"
+#include "logger/SpdLogger.hpp"
+#include "parser/IParser.hpp"
+#include "parser/JsonParser.hpp"
+#include "printer/ConsolePrinter.hpp"
+#include "printer/IPrinter.hpp"
 
 #include <getopt.h>
 

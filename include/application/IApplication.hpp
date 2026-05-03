@@ -1,7 +1,7 @@
 #pragma once
 
-#include "loggers/ILogger.hpp"
-#include "loggers/SpdLogger.hpp"
+#include "logger/ILogger.hpp"
+#include "logger/SpdLogger.hpp"
 
 namespace app
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Task.hpp"
-#include "parsers/IParser.hpp"
+#include "parser/IParser.hpp"
 
 #include <nlohmann/json.hpp>
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Task.hpp"
-#include "printers/IPrinter.hpp"
+#include "printer/IPrinter.hpp"
 
 #include <iostream>
 
