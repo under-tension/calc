@@ -79,7 +79,6 @@ void ConsoleApplication::run(int argc, char** argv)
 
 void ConsoleApplication::print_help(const char* prog)
 {
-    printf("Usage: %s <number1> <operation> <number2>\n", prog);
     printf("For factorial operation: <number>!\n");
     printf("  -v, --version       show version\n");
     printf("  -h, --help          show this help message\n");
