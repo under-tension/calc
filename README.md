@@ -18,15 +18,21 @@ cmake --build build
 cmake --build build --target install
 ```
 
+Для дебага
+```
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+```
+
 Пример использования
 ```
-./calc 2 \* 3
+./calc {\"val1\": 2, \"val2\": 4, \"operation\": \"+\"}
 ```
 
 ```
-./calc 2 ^ 3
+./calc {\"val1\": 2, \"val2\": 4, \"operation\": \"^\"}
 ```
 
+
 ```
-./calc 2 + 3
+./calc {\"val1\": 3, \"operation\": \"\!\"}
 ```
