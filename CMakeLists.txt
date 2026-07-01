@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.25)
 
 project(calc)
 
+find_package(PostgreSQL REQUIRED)
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -41,12 +43,14 @@ add_executable(calc
     src/printer/ConsolePrinter.cpp
     src/parser/JsonParser.cpp
     src/logger/SpdLogger.cpp
+    src/db/repository/OperationRepository.cpp
 )
 
 target_link_libraries(calc PRIVATE
     libmath
     nlohmann_json::nlohmann_json
     spdlog::spdlog
+    PostgreSQL::PostgreSQL
 )
 
 target_include_directories(calc

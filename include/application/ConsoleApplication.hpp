@@ -4,6 +4,8 @@
 #include "Checker.hpp"
 #include "IApplication.hpp"
 #include "Task.hpp"
+#include "db/connection/Connection.hpp"
+#include "db/repository/OperationRepository.hpp"
 #include "logger/ILogger.hpp"
 #include "logger/SpdLogger.hpp"
 #include "parser/IParser.hpp"
@@ -22,6 +24,8 @@ class ConsoleApplication : public IApplication<ConsoleApplication>
     Checker checker;
     Calculator calculator;
     std::unique_ptr<printers::IPrinter> printer;
+    db::connection::ConnectionPtr conn;
+    std::unique_ptr<db::repository::OperationRepository> operation_repo;
 
     ConsoleApplication(std::unique_ptr<parsers::IParser> p =
                            std::make_unique<parsers::JsonParser>(),

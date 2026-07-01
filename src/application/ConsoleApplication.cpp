@@ -7,7 +7,14 @@ ConsoleApplication::ConsoleApplication(
     std::unique_ptr<printers::IPrinter> printer) :
     parser(std::move(p)), checker(std::move(checker)),
     calculator(std::move(calc)), printer(std::move(printer))
-{}
+{
+    std::string conninfo =
+        "host=localhost port=5432 dbname=calc user=postgres password=postgres";
+
+    conn = std::make_unique<db::connection::Connection>(conninfo);
+    operation_repo =
+        std::make_unique<db::repository::OperationRepository>(conn.get());
+}
 
 loggers::ILogger& ConsoleApplication::logger()
 {
@@ -68,6 +75,13 @@ void ConsoleApplication::run(int argc, char** argv)
 
         parser->parse(json_str, task);
         calculator.calculate(task);
+
+        model::OperationModel operation_model(std::string(1, task.operation),
+                                              task.val1, task.val2, task.result,
+                                              task.status);
+
+        operation_repo->insert(operation_model);
+
         checker.check(task);
         printer->print(task);
     }

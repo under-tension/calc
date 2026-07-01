@@ -4,11 +4,11 @@ namespace app
 {
 struct Task
 {
-    int val1;
-    int val2;
-    int result;
-    int status;
-    char operation;
+    int val1 = 0;
+    int val2 = 0;
+    int result = 0;
+    int status = 0;
+    char operation = '\0';
 };
 
 enum class StatusTask
