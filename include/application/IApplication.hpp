@@ -30,11 +30,6 @@ class IApplication
         Application::info(message);
     };
 
-    static Application init()
-    {
-        return Application::init();
-    };
-
     virtual void run(int argc, char** argv) = 0;
 };
 } // namespace app

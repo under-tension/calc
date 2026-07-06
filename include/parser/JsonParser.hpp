@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Task.hpp"
+#include "model/OperationModel.hpp"
 #include "parser/IParser.hpp"
 
 #include <nlohmann/json.hpp>
@@ -12,6 +12,7 @@ namespace parsers
 class JsonParser : public IParser
 {
   public:
-    virtual void parse(std::string input, app::Task& task) override;
+    virtual void parse(std::string input,
+                       model::OperationModel& operationModel) override;
 };
 } // namespace parsers

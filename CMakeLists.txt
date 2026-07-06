@@ -44,6 +44,8 @@ add_executable(calc
     src/parser/JsonParser.cpp
     src/logger/SpdLogger.cpp
     src/db/repository/OperationRepository.cpp
+    src/cache/HashTableCache.cpp
+    src/cache/PgCacheHydrator.cpp
 )
 
 target_link_libraries(calc PRIVATE

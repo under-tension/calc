@@ -2,25 +2,25 @@
 
 namespace app
 {
-void Checker::check(const Task& task)
+void Checker::check(const model::OperationModel& operationModel)
 {
-    switch (task.status)
+    switch (operationModel.status)
     {
-        case static_cast<int>(StatusTask::OK):
+        case static_cast<int>(model::StatusOperation::OK):
             break;
-        case static_cast<int>(StatusTask::NOT_ENOUGH_ARGS):
+        case static_cast<int>(model::StatusOperation::NOT_ENOUGH_ARGS):
             throw std::runtime_error("Not enough arguments");
             break;
-        case static_cast<int>(StatusTask::DIVISION_BY_ZERO):
+        case static_cast<int>(model::StatusOperation::DIVISION_BY_ZERO):
             throw std::runtime_error("Error! Division by zero is not allowed");
             break;
-        case static_cast<int>(StatusTask::NEGATIVE_DEGREE):
+        case static_cast<int>(model::StatusOperation::NEGATIVE_DEGREE):
             throw std::runtime_error("Error! The degree cannot be < 0");
             break;
-        case static_cast<int>(StatusTask::NEGATIVE_FACTORIAL):
+        case static_cast<int>(model::StatusOperation::NEGATIVE_FACTORIAL):
             throw std::runtime_error("Error! The factorial cannot be < 0");
             break;
-        case static_cast<int>(StatusTask::NO_OPERATION):
+        case static_cast<int>(model::StatusOperation::NO_OPERATION):
             throw std::runtime_error("Error! No operation");
             break;
         default:

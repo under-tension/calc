@@ -2,20 +2,6 @@
 
 namespace app
 {
-ConsoleApplication::ConsoleApplication(
-    std::unique_ptr<parsers::IParser> p, Checker checker, Calculator calc,
-    std::unique_ptr<printers::IPrinter> printer) :
-    parser(std::move(p)), checker(std::move(checker)),
-    calculator(std::move(calc)), printer(std::move(printer))
-{
-    std::string conninfo =
-        "host=localhost port=5432 dbname=calc user=postgres password=postgres";
-
-    conn = std::make_unique<db::connection::Connection>(conninfo);
-    operation_repo =
-        std::make_unique<db::repository::OperationRepository>(conn.get());
-}
-
 loggers::ILogger& ConsoleApplication::logger()
 {
     return loggers::SpdLogger::GetInstance();
@@ -34,11 +20,6 @@ void ConsoleApplication::warn(const std::string& message)
 void ConsoleApplication::info(const std::string& message)
 {
     loggers::SpdLogger::GetInstance().info(message);
-}
-
-ConsoleApplication ConsoleApplication::init()
-{
-    return ConsoleApplication();
 }
 
 void ConsoleApplication::run(int argc, char** argv)
@@ -71,19 +52,27 @@ void ConsoleApplication::run(int argc, char** argv)
             return;
         }
 
-        app::Task task;
+        model::OperationModel operationModel;
 
-        parser->parse(json_str, task);
-        calculator.calculate(task);
+        parser->parse(json_str, operationModel);
 
-        model::OperationModel operation_model(std::string(1, task.operation),
-                                              task.val1, task.val2, task.result,
-                                              task.status);
+        std::optional<model::OperationModel> cacheRes =
+            cache->get(operationModel);
 
-        operation_repo->insert(operation_model);
+        if (cacheRes.has_value())
+        {
+            operationModel.result = cacheRes.value().result;
+            operationModel.status = cacheRes.value().status;
+        }
+        else
+        {
+            calculator.calculate(operationModel);
+            operation_repo->insert(operationModel);
+            cache->set(operationModel, operationModel);
+            checker.check(operationModel);
+        }
 
-        checker.check(task);
-        printer->print(task);
+        printer->print(operationModel);
     }
     catch (const std::exception& e)
     {

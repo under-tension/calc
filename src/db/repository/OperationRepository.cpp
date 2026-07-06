@@ -17,12 +17,12 @@ void OperationRepository::insert(const model::OperationModel& operation)
                                   op2Str.c_str(), resultStr.c_str(),
                                   statusStr.c_str()};
 
-    PGresult* res = PQexecParams(conn_->get(), query.c_str(), 5, nullptr,
+    PGresult* res = PQexecParams(conn_.get(), query.c_str(), 5, nullptr,
                                  paramValues, nullptr, nullptr, 0);
 
     if (PQresultStatus(res) != PGRES_COMMAND_OK)
     {
-        std::string err_msg = PQerrorMessage(conn_->get());
+        std::string err_msg = PQerrorMessage(conn_.get());
         PQclear(res);
         throw std::runtime_error("Insert operation failed: " + err_msg);
     }
@@ -30,51 +30,33 @@ void OperationRepository::insert(const model::OperationModel& operation)
     PQclear(res);
 }
 
-// std::optional<model::OperationModel> OperationRepository::findById(unsigned
-// id)
-// {
-//     const std::string query = "SELECT id, operation_type, operand1, operand2,
-//     result, status FROM operations WHERE id = $1";
+std::vector<model::OperationModel> OperationRepository::findAll()
+{
+    std::vector<model::OperationModel> result;
 
-//     const std::string idStr = std::to_string(id);
-//     const char* paramValues[1] = { idStr.c_str() };
+    const std::string query =
+        "SELECT id, operation_type, operand1, operand2, result, status FROM operations";
 
-//     PGresult* res = PQexecParams(
-//         conn_->get(),
-//         query.c_str(),
-//         1,
-//         nullptr,
-//         paramValues,
-//         nullptr,
-//         nullptr,
-//         0
-//     );
+    PGresult* raw_res = PQexecParams(conn_.get(), query.c_str(), 0, nullptr,
+                                     nullptr, nullptr, nullptr, 0);
 
-//     if (PQresultStatus(res) != PGRES_TUPLES_OK)
-//     {
-//         std::string err_msg = PQerrorMessage(conn_->get());
-//         PQclear(res);
-//         throw std::runtime_error("Select operation failed: " + err_msg);
-//     }
+    if (PQresultStatus(raw_res) != PGRES_TUPLES_OK)
+    {
+        std::string err_msg = PQerrorMessage(conn_.get());
+        PQclear(raw_res);
+        throw std::runtime_error("Select operation failed: " + err_msg);
+    }
 
-//     int rowCount = PQntuples(res);
-//     if (rowCount == 0)
-//     {
-//         PQclear(res);
-//         return std::nullopt;
-//     }
+    db::connection::QueryResultPtr res =
+        std::make_unique<db::connection::QueryResult>(raw_res);
 
-//     model::OperationModel operation(
-//         std::stoul(PQgetvalue(res, 0, 0)),
-//         PQgetvalue(res, 0, 1),
-//         std::stoi(PQgetvalue(res, 0, 2)),
-//         std::stoi(PQgetvalue(res, 0, 3)),
-//         std::stoi(PQgetvalue(res, 0, 4)),
-//         std::stoi(PQgetvalue(res, 0, 5))
-//     );
+    for (unsigned i = 0; i < res->rowCount(); ++i)
+    {
+        result.push_back(model::OperationModel(
+            res->getUInt(i, 0), res->getString(i, 1), res->getInt(i, 2),
+            res->getInt(i, 3), res->getInt(i, 4), res->getInt(i, 5)));
+    }
 
-//     PQclear(res);
-
-//     return operation;
-// }
+    return result;
+}
 } // namespace db::repository
