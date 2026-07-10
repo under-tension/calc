@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cache/ICache.hpp"
-#include "db/repository/OperationRepository.hpp"
 #include "model/OperationModel.hpp"
 
 #include <functional>
@@ -29,15 +28,11 @@ class HashTableCache : public ICache
     std::unordered_map<model::OperationModel, model::OperationModel,
                        OperationHash, OperationEq>
         map_;
-    db::repository::OperationRepository& operationRepository_;
 
   public:
+    HashTableCache() = default;
     HashTableCache(const HashTableCache&) = delete;
     HashTableCache& operator=(const HashTableCache&) = delete;
-
-    HashTableCache(db::repository::OperationRepository& repository) :
-        operationRepository_(repository)
-    {}
 
     virtual std::optional<model::OperationModel>
         get(const model::OperationModel& key) override;

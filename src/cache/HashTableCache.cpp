@@ -46,7 +46,7 @@ std::optional<model::OperationModel>
 
     if (it != map_.end())
     {
-        return map_[key];
+        return it->second;
     }
 
     return std::nullopt;

@@ -8,7 +8,7 @@ int main(int argc, char** argv)
     auto printer = std::make_unique<printers::ConsolePrinter>();
     auto conn = std::make_unique<db::connection::Connection>(dsn);
     auto repo = std::make_unique<db::repository::OperationRepository>(*conn);
-    auto cache = std::make_unique<cache::HashTableCache>(*repo);
+    auto cache = std::make_unique<cache::HashTableCache>();
 
     cache::PgCacheHydrator hydrator(*repo, *cache);
     hydrator.hydrate();
