@@ -1,11 +1,11 @@
 #include "Calculator.hpp"
 
-#include "Task.hpp"
+#include "model/OperationModel.hpp"
 
 #include <gtest/gtest.h>
 
-using app::StatusTask;
-using app::Task;
+using model::OperationModel;
+using model::StatusOperation;
 
 class CalculatorTest : public testing::Test
 {
@@ -22,47 +22,54 @@ class CalculatorTest : public testing::Test
 
 TEST_F(CalculatorTest, HandlesPositiveInput)
 {
-    std::vector<Task> tasks = {
-        {5, 3, 8, static_cast<int>(StatusTask::OK), '+'},
-        {5, 3, 2, static_cast<int>(StatusTask::OK), '-'},
-        {5, 3, 15, static_cast<int>(StatusTask::OK), '*'},
-        {6, 3, 2, static_cast<int>(StatusTask::OK), '/'},
-        {5, 0, 120, static_cast<int>(StatusTask::OK), '!'}};
+    std::vector<OperationModel> operations = {
+        {"+", 5, 3, 8, static_cast<int>(StatusOperation::OK)},
+        {"-", 5, 3, 2, static_cast<int>(StatusOperation::OK)},
+        {"*", 5, 3, 15, static_cast<int>(StatusOperation::OK)},
+        {"/", 6, 3, 2, static_cast<int>(StatusOperation::OK)},
+        {"!", 5, 0, 120, static_cast<int>(StatusOperation::OK)}};
 
-    for (auto& task : tasks)
+    for (auto& operationModel : operations)
     {
-        Task t = task;
-        calculator.calculate(t);
-        EXPECT_EQ(t.result, task.result);
-        EXPECT_EQ(t.status, static_cast<int>(task.status));
+        OperationModel operation = operationModel;
+        calculator.calculate(operation);
+        EXPECT_EQ(operation.result, operationModel.result);
+        EXPECT_EQ(operation.status, static_cast<int>(operationModel.status));
     }
 }
 
 TEST_F(CalculatorTest, DivisionByZero)
 {
-    Task task = {6, 0, 0, static_cast<int>(StatusTask::DIVISION_BY_ZERO), '/'};
-    calculator.calculate(task);
-    EXPECT_EQ(task.status, static_cast<int>(StatusTask::DIVISION_BY_ZERO));
+    OperationModel operationModel = {
+        "/", 6, 0, 0, static_cast<int>(StatusOperation::DIVISION_BY_ZERO)};
+    calculator.calculate(operationModel);
+    EXPECT_EQ(operationModel.status,
+              static_cast<int>(StatusOperation::DIVISION_BY_ZERO));
 }
 
 TEST_F(CalculatorTest, NegativeDegree)
 {
-    Task task = {2, -3, 0, static_cast<int>(StatusTask::NEGATIVE_DEGREE), '^'};
-    calculator.calculate(task);
-    EXPECT_EQ(task.status, static_cast<int>(StatusTask::NEGATIVE_DEGREE));
+    OperationModel operationModel = {
+        "^", 2, -3, 0, static_cast<int>(StatusOperation::NEGATIVE_DEGREE)};
+    calculator.calculate(operationModel);
+    EXPECT_EQ(operationModel.status,
+              static_cast<int>(StatusOperation::NEGATIVE_DEGREE));
 }
 
 TEST_F(CalculatorTest, NegativeFactorial)
 {
-    Task task = {-5, 0, 0, static_cast<int>(StatusTask::NEGATIVE_FACTORIAL),
-                 '!'};
-    calculator.calculate(task);
-    EXPECT_EQ(task.status, static_cast<int>(StatusTask::NEGATIVE_FACTORIAL));
+    OperationModel operationModel = {
+        "!", -5, 0, 0, static_cast<int>(StatusOperation::NEGATIVE_FACTORIAL)};
+    calculator.calculate(operationModel);
+    EXPECT_EQ(operationModel.status,
+              static_cast<int>(StatusOperation::NEGATIVE_FACTORIAL));
 }
 
 TEST_F(CalculatorTest, NoOperation)
 {
-    Task task = {5, 3, 0, static_cast<int>(StatusTask::NO_OPERATION), '='};
-    calculator.calculate(task);
-    EXPECT_EQ(task.status, static_cast<int>(StatusTask::NO_OPERATION));
+    OperationModel operationModel = {
+        "=", 5, 3, 0, static_cast<int>(StatusOperation::NO_OPERATION)};
+    calculator.calculate(operationModel);
+    EXPECT_EQ(operationModel.status,
+              static_cast<int>(StatusOperation::NO_OPERATION));
 }

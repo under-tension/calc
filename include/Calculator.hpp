@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Task.hpp"
+#include "model/OperationModel.hpp"
 
 #include <libmath.h>
 
@@ -9,6 +9,6 @@ namespace app
 class Calculator
 {
   public:
-    void calculate(Task& task);
+    void calculate(model::OperationModel& operationModel);
 };
 } // namespace app

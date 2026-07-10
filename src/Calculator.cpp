@@ -2,31 +2,41 @@
 
 namespace app
 {
-void Calculator::calculate(Task& task)
+void Calculator::calculate(model::OperationModel& operationModel)
 {
-    switch (task.operation)
+    switch (operationModel.operation_type[0])
     {
         case '+':
-            task.status = libmath::add(task.val1, task.val2, task.result);
+            operationModel.status =
+                libmath::add(operationModel.operand1, operationModel.operand2,
+                             operationModel.result);
             break;
         case '-':
-            task.status = libmath::sub(task.val1, task.val2, task.result);
+            operationModel.status =
+                libmath::sub(operationModel.operand1, operationModel.operand2,
+                             operationModel.result);
             break;
         case '*':
-            task.status =
-                libmath::multiplication(task.val1, task.val2, task.result);
+            operationModel.status = libmath::multiplication(
+                operationModel.operand1, operationModel.operand2,
+                operationModel.result);
             break;
         case '/':
-            task.status = libmath::division(task.val1, task.val2, task.result);
+            operationModel.status = libmath::division(operationModel.operand1,
+                                                      operationModel.operand2,
+                                                      operationModel.result);
             break;
         case '^':
-            task.status = libmath::power(task.val1, task.val2, task.result);
+            operationModel.status =
+                libmath::power(operationModel.operand1, operationModel.operand2,
+                               operationModel.result);
             break;
         case '!':
-            task.status = libmath::factorial(task.val1, task.result);
+            operationModel.status = libmath::factorial(operationModel.operand1,
+                                                       operationModel.result);
             break;
         default:
-            task.status = 5;
+            operationModel.status = 5;
     }
 }
 } // namespace app

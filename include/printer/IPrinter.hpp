@@ -1,14 +1,13 @@
 #pragma once
 
-#include "Task.hpp"
-
-#include <iostream>
+#include "model/OperationModel.hpp"
 
 namespace printers
 {
 class IPrinter
 {
   public:
-    virtual void print(const app::Task& task) = 0;
+    virtual ~IPrinter() = default;
+    virtual void print(const model::OperationModel& operationModel) = 0;
 };
 } // namespace printers

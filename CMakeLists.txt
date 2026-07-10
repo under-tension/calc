@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.25)
 
 project(calc)
 
+find_package(PostgreSQL REQUIRED)
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -41,12 +43,16 @@ add_executable(calc
     src/printer/ConsolePrinter.cpp
     src/parser/JsonParser.cpp
     src/logger/SpdLogger.cpp
+    src/db/repository/OperationRepository.cpp
+    src/cache/HashTableCache.cpp
+    src/cache/PgCacheHydrator.cpp
 )
 
 target_link_libraries(calc PRIVATE
     libmath
     nlohmann_json::nlohmann_json
     spdlog::spdlog
+    PostgreSQL::PostgreSQL
 )
 
 target_include_directories(calc
@@ -116,3 +122,26 @@ if(ENABLE_CLANG_TIDY)
     set_target_properties(calc PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 endif()
 
+option(ENABLE_VALGRIND "Run tests under Valgrind" OFF)
+
+if(ENABLE_VALGRIND)
+    find_program(VALGRIND_EXECUTABLE valgrind REQUIRED)
+    message(STATUS "Found Valgrind: ${VALGRIND_EXECUTABLE}")
+        
+    set(VALGRIND_FLAGS
+        --leak-check=full
+        --show-leak-kinds=definite,indirect
+        --error-exitcode=1
+        --track-origins=yes
+        --soname-synonyms=somalloc=nouserintercepts
+    )
+    
+    add_test(
+        NAME tests_memcheck
+        COMMAND ${VALGRIND_EXECUTABLE} ${VALGRIND_FLAGS} $<TARGET_FILE:tests>
+    )
+    
+    set_tests_properties(tests_memcheck PROPERTIES TIMEOUT 300)
+    
+    message(STATUS "Valgrind test enabled: run with 'ctest -R tests_memcheck'")
+endif()
