@@ -69,9 +69,9 @@ void ConsoleApplication::run(int argc, char** argv)
             calculator.calculate(operationModel);
             operation_repo->insert(operationModel);
             cache->set(operationModel, operationModel);
-            checker.check(operationModel);
         }
 
+        checker.check(operationModel);
         printer->print(operationModel);
     }
     catch (const std::exception& e)
