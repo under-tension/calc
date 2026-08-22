@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.25)
 
 project(calc)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 find_package(PostgreSQL REQUIRED)
+find_package(Threads REQUIRED)
 
 include(FetchContent)
 
@@ -33,16 +37,27 @@ FetchContent_Declare(
     GIT_TAG v1.17.0
 )
 
-FetchContent_MakeAvailable(libmath json spdlog googletest)
+set(BOOST_INCLUDE_LIBRARIES asio)
+set(BOOST_ENABLE_CMAKE ON)
+
+FetchContent_Declare(
+    boost
+    URL
+    https://github.com/boostorg/boost/releases/download/boost-1.88.0/boost-1.88.0-cmake.tar.xz
+)
+
+FetchContent_MakeAvailable(libmath json spdlog googletest boost)
 
 add_executable(calc
     src/main.cpp
     src/Calculator.cpp
     src/Checker.cpp
     src/application/ConsoleApplication.cpp
+    src/application/ServiceRunner.cpp
     src/printer/ConsolePrinter.cpp
     src/parser/JsonParser.cpp
     src/logger/SpdLogger.cpp
+    src/signal/SignalHandler.cpp
     src/db/repository/OperationRepository.cpp
     src/cache/HashTableCache.cpp
     src/cache/PgCacheHydrator.cpp
@@ -53,6 +68,8 @@ target_link_libraries(calc PRIVATE
     nlohmann_json::nlohmann_json
     spdlog::spdlog
     PostgreSQL::PostgreSQL
+    Boost::asio
+    Threads::Threads
 )
 
 target_include_directories(calc

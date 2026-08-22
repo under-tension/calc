@@ -52,6 +52,18 @@ void ConsoleApplication::run(int argc, char** argv)
             return;
         }
 
+        processOperation(json_str);
+    }
+    catch (const std::exception& e)
+    {
+        ConsoleApplication::error(e.what());
+    }
+}
+
+void ConsoleApplication::processOperation(const std::string& json_str)
+{
+    try
+    {
         model::OperationModel operationModel;
 
         parser->parse(json_str, operationModel);

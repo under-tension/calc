@@ -47,6 +47,11 @@ class ConsoleApplication : public IApplication<ConsoleApplication>
 
     virtual void run(int argc, char** argv) override;
 
+    // Обработка одного задания: разбор -> кэш -> расчёт и сохранение при
+    // промахе -> проверка статуса -> выдача результата. Не зависит от того,
+    // откуда пришло задание.
+    void processOperation(const std::string& json_str);
+
     int process_flags(int argc, char** argv);
     void print_help(const char* prog);
 };

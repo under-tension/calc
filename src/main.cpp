@@ -1,4 +1,5 @@
 #include "application/ConsoleApplication.hpp"
+#include "application/ServiceRunner.hpp"
 
 int main(int argc, char** argv)
 {
@@ -17,7 +18,19 @@ int main(int argc, char** argv)
         std::move(parser), app::Checker(), app::Calculator(),
         std::move(printer), std::move(conn), std::move(repo), std::move(cache));
 
-    app.run(argc, argv);
+    // Задание передано аргументом — выполняем разово, как раньше.
+    if (argc > 1)
+    {
+        app.run(argc, argv);
+
+        return 0;
+    }
+
+    // Аргументов нет — работаем как сервис до сигнала завершения.
+    app::ServiceRunner runner(
+        [&app](const std::string& line) { app.processOperation(line); });
+
+    runner.run();
 
     return 0;
 }
