@@ -2,57 +2,42 @@
 
 #include "logger/SpdLogger.hpp"
 
-#include <unistd.h>
-
-#include <boost/asio/executor_work_guard.hpp>
-#include <boost/asio/read_until.hpp>
+#include <boost/asio/post.hpp>
 
 #include <iostream>
-#include <istream>
 #include <thread>
+#include <utility>
 
 namespace app
 {
-ServiceRunner::ServiceRunner(
-    std::function<void(const std::string&)> onRequest) :
-    // dup, чтобы закрытие дескриптора не закрывало stdin всего процесса
-    input_(context_, ::dup(STDIN_FILENO)), onRequest_(std::move(onRequest)),
-    signalHandler_([this] { context_.stop(); })
+ServiceRunner::ServiceRunner(const config::ServerConfig& config,
+                             net::RequestHandler handler) :
+    guard_(boost::asio::make_work_guard(context_)),
+    server_(context_, config.host, config.port, std::move(handler)),
+    signalHandler_(
+        [this]
+        {
+            // Остановка работает с сессиями и приёмом подключений, а они
+            // принадлежат рабочему потоку — передаём задачу в его цикл событий.
+            boost::asio::post(context_, [this] { shutdown(); });
+        })
 {}
 
-void ServiceRunner::readNext()
+void ServiceRunner::shutdown()
 {
-    boost::asio::async_read_until(
-        input_, buffer_, '\n',
-        [this](const boost::system::error_code& error, std::size_t) {
-            if (error)
-            {
-                return;
-            }
+    server_.shutdown();
 
-            std::istream stream(&buffer_);
-            std::string line;
-            std::getline(stream, line);
-
-            if (!line.empty())
-            {
-                onRequest_(line);
-            }
-
-            readNext();
-        });
+    // Отпускаем цикл событий: он завершится, когда уйдут последние уведомления
+    // клиентам и закроются соединения.
+    guard_.reset();
 }
 
 void ServiceRunner::run()
 {
-    // Держит цикл событий живым, даже когда ввод закрыт и ждать больше нечего,
-    // кроме сигнала завершения.
-    const auto guard = boost::asio::make_work_guard(context_);
-
     std::jthread signalThread(
         [this](std::stop_token token) { signalHandler_.run(token); });
 
-    readNext();
+    server_.start();
 
     loggers::SpdLogger::GetInstance().info("Service started");
 
@@ -60,6 +45,7 @@ void ServiceRunner::run()
 
     loggers::SpdLogger::GetInstance().info("Service stopped");
 
+    // Логгер пишет info только в файл, поэтому прощаемся отдельно.
     std::cout << "Service stopped. Goodbye!" << std::endl;
 }
 } // namespace app

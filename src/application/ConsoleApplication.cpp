@@ -60,6 +60,26 @@ void ConsoleApplication::run(int argc, char** argv)
     }
 }
 
+model::OperationModel
+    ConsoleApplication::execute(model::OperationModel operationModel)
+{
+    std::optional<model::OperationModel> cacheRes = cache->get(operationModel);
+
+    if (cacheRes.has_value())
+    {
+        operationModel.result = cacheRes.value().result;
+        operationModel.status = cacheRes.value().status;
+
+        return operationModel;
+    }
+
+    calculator.calculate(operationModel);
+    operation_repo->insert(operationModel);
+    cache->set(operationModel, operationModel);
+
+    return operationModel;
+}
+
 void ConsoleApplication::processOperation(const std::string& json_str)
 {
     try
@@ -68,20 +88,7 @@ void ConsoleApplication::processOperation(const std::string& json_str)
 
         parser->parse(json_str, operationModel);
 
-        std::optional<model::OperationModel> cacheRes =
-            cache->get(operationModel);
-
-        if (cacheRes.has_value())
-        {
-            operationModel.result = cacheRes.value().result;
-            operationModel.status = cacheRes.value().status;
-        }
-        else
-        {
-            calculator.calculate(operationModel);
-            operation_repo->insert(operationModel);
-            cache->set(operationModel, operationModel);
-        }
+        operationModel = execute(operationModel);
 
         checker.check(operationModel);
         printer->print(operationModel);
@@ -90,6 +97,37 @@ void ConsoleApplication::processOperation(const std::string& json_str)
     {
         ConsoleApplication::error(e.what());
     }
+}
+
+protocol::CalculationResponse
+    ConsoleApplication::processRequest(const protocol::CalculationRequest& request)
+{
+    protocol::CalculationResponse response;
+
+    try
+    {
+        model::OperationModel operationModel;
+        operationModel.operation_type = request.operation;
+        operationModel.operand1 = request.operand1;
+        operationModel.operand2 = request.operand2;
+
+        operationModel = execute(operationModel);
+
+        response.result = operationModel.result;
+        response.status = operationModel.status;
+
+        // Превращает ненулевой статус в понятное сообщение об ошибке.
+        checker.check(operationModel);
+    }
+    catch (const std::exception& e)
+    {
+        response.error = e.what();
+
+        ConsoleApplication::error("Request " + request.describe() +
+                                  " failed: " + e.what());
+    }
+
+    return response;
 }
 
 void ConsoleApplication::print_help(const char* prog)

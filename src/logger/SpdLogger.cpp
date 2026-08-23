@@ -30,6 +30,10 @@ std::shared_ptr<spdlog::logger> SpdLogger::CreateLogger()
     auto spdLogger = std::make_shared<spdlog::logger>(
         "multi_sink", spdlog::sinks_init_list{console_sink, file_sink});
 
+    // Без этого записи копятся в буфере и попадают в файл только при
+    // остановке сервиса — ошибки нужно видеть сразу.
+    spdLogger->flush_on(spdlog::level::warn);
+
     return spdLogger;
 }
 

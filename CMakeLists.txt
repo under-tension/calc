@@ -48,22 +48,27 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(libmath json spdlog googletest boost)
 
-add_executable(calc
-    src/main.cpp
+# Общий код: доступен и серверу, и клиенту, и тестам.
+add_library(calc_core STATIC
     src/Calculator.cpp
     src/Checker.cpp
     src/application/ConsoleApplication.cpp
     src/application/ServiceRunner.cpp
     src/printer/ConsolePrinter.cpp
     src/parser/JsonParser.cpp
+    src/protocol/Messages.cpp
+    src/config/ServerConfig.cpp
     src/logger/SpdLogger.cpp
     src/signal/SignalHandler.cpp
+    src/net/Server.cpp
+    src/net/Session.cpp
+    src/net/Client.cpp
     src/db/repository/OperationRepository.cpp
     src/cache/HashTableCache.cpp
     src/cache/PgCacheHydrator.cpp
 )
 
-target_link_libraries(calc PRIVATE
+target_link_libraries(calc_core PUBLIC
     libmath
     nlohmann_json::nlohmann_json
     spdlog::spdlog
@@ -72,12 +77,18 @@ target_link_libraries(calc PRIVATE
     Threads::Threads
 )
 
-target_include_directories(calc
+target_include_directories(calc_core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-install(TARGETS calc
+add_executable(calc src/main.cpp)
+target_link_libraries(calc PRIVATE calc_core)
+
+add_executable(calc_client src/client_main.cpp)
+target_link_libraries(calc_client PRIVATE calc_core)
+
+install(TARGETS calc calc_client
     RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -85,23 +96,15 @@ enable_testing()
 
 add_executable(
   tests
-  src/Calculator.cpp
-  src/Checker.cpp
-  src/parser/JsonParser.cpp
   tests/CalculatorTest.cpp
   tests/CheckerTest.cpp
   tests/parser/JsonParserTest.cpp
-)
-
-target_include_directories(tests
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+  tests/net/ServerTest.cpp
 )
 
 target_link_libraries(tests PRIVATE
-    libmath
+    calc_core
     GTest::gtest_main
-    nlohmann_json::nlohmann_json
 )
 
 include(GoogleTest)

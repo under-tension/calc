@@ -26,9 +26,11 @@ int main(int argc, char** argv)
         return 0;
     }
 
-    // Аргументов нет — работаем как сервис до сигнала завершения.
+    // Аргументов нет — принимаем задания по сети до сигнала завершения.
     app::ServiceRunner runner(
-        [&app](const std::string& line) { app.processOperation(line); });
+        config::ServerConfig::fromEnvironment("0.0.0.0"),
+        [&app](const protocol::CalculationRequest& request)
+        { return app.processRequest(request); });
 
     runner.run();
 

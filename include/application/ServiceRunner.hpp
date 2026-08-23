@@ -1,13 +1,11 @@
 #pragma once
 
+#include "config/ServerConfig.hpp"
+#include "net/Server.hpp"
 #include "signal/SignalHandler.hpp"
 
+#include <boost/asio/executor_work_guard.hpp>
 #include <boost/asio/io_context.hpp>
-#include <boost/asio/posix/stream_descriptor.hpp>
-#include <boost/asio/streambuf.hpp>
-
-#include <functional>
-#include <string>
 
 namespace app
 {
@@ -15,21 +13,22 @@ class ServiceRunner
 {
   private:
     boost::asio::io_context context_;
-    boost::asio::posix::stream_descriptor input_;
-    boost::asio::streambuf buffer_;
-    std::function<void(const std::string&)> onRequest_;
+    boost::asio::executor_work_guard<boost::asio::io_context::executor_type>
+        guard_;
+    net::Server server_;
     signals::SignalHandler signalHandler_;
 
-    void readNext();
+    void shutdown();
 
   public:
-    explicit ServiceRunner(std::function<void(const std::string&)> onRequest);
+    ServiceRunner(const config::ServerConfig& config,
+                  net::RequestHandler handler);
 
     ServiceRunner(const ServiceRunner&) = delete;
     ServiceRunner& operator=(const ServiceRunner&) = delete;
 
-    // Поднимает поток обработки сигналов и работает до получения сигнала
-    // завершения, обрабатывая поступающие задания.
+    // Поднимает поток обработки сигналов и обслуживает клиентов до получения
+    // сигнала завершения.
     void run();
 };
 } // namespace app
