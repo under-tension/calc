@@ -1,6 +1,9 @@
 *.out
 calc
+calc_client
 /build
 /logs/*
 perf.data
 .vscode
+.env
+*.pid

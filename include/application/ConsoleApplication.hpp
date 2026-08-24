@@ -3,6 +3,7 @@
 #include "Calculator.hpp"
 #include "Checker.hpp"
 #include "IApplication.hpp"
+#include "application/Options.hpp"
 #include "cache/HashTableCache.hpp"
 #include "cache/PgCacheHydrator.hpp"
 #include "db/connection/Connection.hpp"
@@ -59,8 +60,5 @@ class ConsoleApplication : public IApplication<ConsoleApplication>
 
     // Общая часть обеих веток: кэш -> расчёт и сохранение при промахе.
     model::OperationModel execute(model::OperationModel operationModel);
-
-    int process_flags(int argc, char** argv);
-    void print_help(const char* prog);
 };
 } // namespace app

@@ -1,0 +1,30 @@
+[Unit]
+Description=Calculator TCP service
+Documentation=https://github.com/under-tension/calc
+After=network-online.target postgresql.service docker.service
+Wants=network-online.target
+
+[Service]
+# Процесс остаётся на переднем плане: диспетчер сам уводит службу в фон и
+# следит за её жизненным циклом. Флаг -d здесь НЕ используется — с ним
+# родительский процесс завершится сразу, и служба будет считаться упавшей.
+Type=simple
+
+ExecStart=/usr/local/bin/calc
+
+EnvironmentFile=-/etc/calc/calc.env
+
+User=calc
+Group=calc
+WorkingDirectory=/var/lib/calc
+
+Restart=on-failure
+RestartSec=5
+
+# Сервер уже умеет корректно завершаться по этому сигналу: рассылает клиентам
+# уведомление, закрывает соединения и выходит сам.
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

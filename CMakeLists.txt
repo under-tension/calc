@@ -54,10 +54,15 @@ add_library(calc_core STATIC
     src/Checker.cpp
     src/application/ConsoleApplication.cpp
     src/application/ServiceRunner.cpp
+    src/application/Daemon.cpp
+    src/application/Options.cpp
+    src/application/PidFile.cpp
     src/printer/ConsolePrinter.cpp
     src/parser/JsonParser.cpp
     src/protocol/Messages.cpp
     src/config/ServerConfig.cpp
+    src/config/AppConfig.cpp
+    src/config/DotEnv.cpp
     src/logger/SpdLogger.cpp
     src/signal/SignalHandler.cpp
     src/net/Server.cpp
