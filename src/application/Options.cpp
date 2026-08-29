@@ -44,7 +44,7 @@ Options Options::parse(int argc, char** argv)
                 options.configPath = optarg;
                 break;
             case 'v':
-                printf("Version 1.0\n");
+                printf("Version %s\n", CALC_VERSION);
                 options.shouldExit = true;
                 return options;
             case 'h':

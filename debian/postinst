@@ -1,0 +1,39 @@
+#!/bin/sh
+# Подготовка после установки: пользователь службы, каталоги, регистрация.
+# Сценарий выполняется и при установке поверх уже установленного пакета,
+# поэтому каждое действие проверяет, не сделано ли оно раньше.
+set -e
+
+SERVICE_USER=calc
+CONFIG_FILE=/etc/calc/calc.env
+DATA_DIR=/var/lib/calc
+LOG_DIR=/var/log/calc
+
+case "$1" in
+    configure)
+        if ! getent group "$SERVICE_USER" >/dev/null; then
+            addgroup --system "$SERVICE_USER"
+        fi
+
+        if ! getent passwd "$SERVICE_USER" >/dev/null; then
+            adduser --system --ingroup "$SERVICE_USER" --home "$DATA_DIR" \
+                    --no-create-home --shell /usr/sbin/nologin "$SERVICE_USER"
+        fi
+
+        mkdir -p "$DATA_DIR" "$LOG_DIR"
+        chown "$SERVICE_USER:$SERVICE_USER" "$DATA_DIR" "$LOG_DIR"
+        chmod 750 "$DATA_DIR" "$LOG_DIR"
+
+        if [ -f "$CONFIG_FILE" ]; then
+            chown root:"$SERVICE_USER" "$CONFIG_FILE"
+            chmod 640 "$CONFIG_FILE"
+        fi
+
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload || true
+            systemctl enable calc.service >/dev/null 2>&1 || true
+        fi
+        ;;
+esac
+
+exit 0

@@ -10,7 +10,7 @@ Wants=network-online.target
 # родительский процесс завершится сразу, и служба будет считаться упавшей.
 Type=simple
 
-ExecStart=/usr/local/bin/calc
+ExecStart=/usr/bin/calc
 
 EnvironmentFile=-/etc/calc/calc.env
 

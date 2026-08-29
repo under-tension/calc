@@ -7,3 +7,5 @@ perf.data
 .vscode
 .env
 *.pid
+*.deb
+_CPack_Packages

@@ -85,20 +85,47 @@ kill -TERM $(cat calc.pid)
 ./calc_client
 ```
 
-## Управление службой
+## Сборка deb-пакета
 
-Установка (нужны права root):
 ```
-sudo install -m 755 build/calc /usr/local/bin/calc
-sudo install -m 755 build/calc_client /usr/local/bin/calc_client
-sudo install -d -m 755 /etc/calc /var/lib/calc /var/log/calc
-sudo install -m 640 .env.example /etc/calc/calc.env
-sudo install -m 644 systemd/calc.service /etc/systemd/system/calc.service
-sudo useradd --system --home /var/lib/calc --shell /usr/sbin/nologin calc
-sudo chown -R calc:calc /var/lib/calc /var/log/calc
-sudo chown root:calc /etc/calc/calc.env
-sudo systemctl daemon-reload
+cmake -B build
+cmake --build build
+cpack --config build/CPackConfig.cmake
 ```
+
+Пакет `calc_1.0.0_amd64.deb` появится в корне проекта. В него входят оба
+бинарника, файл службы и образец настроек — в системных путях `/usr/bin`,
+`/usr/lib/systemd/system` и `/etc/calc`.
+
+Поле сопровождающего задаётся при конфигурации:
+```
+cmake -B build -DCPACK_PACKAGE_CONTACT="Имя <почта>"
+```
+
+Проверка содержимого и метаданных до установки:
+```
+dpkg -c calc_1.0.0_amd64.deb
+dpkg -I calc_1.0.0_amd64.deb
+```
+
+Установка и удаление:
+```
+sudo apt install ./calc_1.0.0_amd64.deb
+sudo apt remove calc      # программа удаляется, настройки остаются
+sudo apt purge calc       # удаляются и настройки с каталогами
+```
+
+После установки пользователь службы, каталоги `/var/lib/calc` и
+`/var/log/calc` создаются автоматически, служба регистрируется в systemd.
+Настройки лежат в `/etc/calc/calc.env` и помечены как конфигурационные —
+обновление пакета не затрёт внесённые правки.
+
+```
+sudo nano /etc/calc/calc.env      # указать CALC_DSN
+psql -d calc -U postgres -f /usr/share/calc/migrations/create_table_operations.sql
+```
+
+## Управление службой
 
 Управление:
 ```

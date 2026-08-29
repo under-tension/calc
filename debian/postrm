@@ -1,0 +1,31 @@
+#!/bin/sh
+# Уборка после удаления. При обычном удалении настройки и данные остаются:
+# они нужны, если пакет поставят снова. Полное удаление убирает и их.
+set -e
+
+SERVICE_USER=calc
+
+case "$1" in
+    remove)
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload || true
+        fi
+        ;;
+    purge)
+        rm -rf /var/log/calc /var/lib/calc /etc/calc
+
+        if getent passwd "$SERVICE_USER" >/dev/null; then
+            deluser --system "$SERVICE_USER" >/dev/null 2>&1 || true
+        fi
+
+        if getent group "$SERVICE_USER" >/dev/null; then
+            delgroup --system "$SERVICE_USER" >/dev/null 2>&1 || true
+        fi
+
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload || true
+        fi
+        ;;
+esac
+
+exit 0

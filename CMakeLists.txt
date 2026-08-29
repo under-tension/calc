@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.25)
 
-project(calc)
+project(calc VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include(GNUInstallDirs)
 
 find_package(PostgreSQL REQUIRED)
 find_package(Threads REQUIRED)
@@ -87,6 +89,8 @@ target_include_directories(calc_core
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+target_compile_definitions(calc_core PUBLIC CALC_VERSION="${PROJECT_VERSION}")
+
 add_executable(calc src/main.cpp)
 target_link_libraries(calc PRIVATE calc_core)
 
@@ -95,6 +99,33 @@ target_link_libraries(calc_client PRIVATE calc_core)
 
 install(TARGETS calc calc_client
     RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+install(TARGETS calc calc_client
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT service
+    EXCLUDE_FROM_ALL
+)
+
+install(FILES systemd/calc.service
+    DESTINATION lib/systemd/system
+    COMPONENT service
+    EXCLUDE_FROM_ALL
+)
+
+install(FILES .env.example
+    DESTINATION /etc/calc
+    RENAME calc.env
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ
+    COMPONENT service
+    EXCLUDE_FROM_ALL
+)
+
+install(DIRECTORY migrations/
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/calc/migrations
+    COMPONENT service
+    EXCLUDE_FROM_ALL
+    FILES_MATCHING PATTERN "*.sql"
 )
 
 enable_testing()
@@ -167,6 +198,47 @@ if(ENABLE_VALGRIND)
     )
     
     set_tests_properties(tests_memcheck PROPERTIES TIMEOUT 300)
-    
+
     message(STATUS "Valgrind test enabled: run with 'ctest -R tests_memcheck'")
 endif()
+
+# Сборка deb-пакета: cpack --config build/CPackConfig.cmake
+set(CPACK_GENERATOR "DEB")
+
+set(CPACK_PACKAGE_NAME "calc")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+    "Calculator TCP service with PostgreSQL storage")
+
+set(CPACK_PACKAGE_CONTACT "calc maintainers <noname@example.com>"
+    CACHE STRING "Package maintainer")
+
+set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
+
+set(CPACK_DEB_COMPONENT_INSTALL ON)
+set(CPACK_COMPONENTS_ALL service)
+
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
+set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
+set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+
+set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "postgresql-client")
+
+set(CPACK_DEBIAN_PACKAGE_CONTROL_STRICT_PERMISSION ON)
+
+set(CPACK_DEBIAN_SERVICE_PACKAGE_NAME "calc")
+set(CPACK_DEBIAN_SERVICE_FILE_NAME "DEB-DEFAULT")
+
+set(CALC_CONFFILES "${CMAKE_CURRENT_BINARY_DIR}/debian/conffiles")
+file(WRITE "${CALC_CONFFILES}" "/etc/calc/calc.env\n")
+
+set(CPACK_DEBIAN_SERVICE_PACKAGE_CONTROL_EXTRA
+    "${CALC_CONFFILES}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/debian/postinst"
+    "${CMAKE_CURRENT_SOURCE_DIR}/debian/prerm"
+    "${CMAKE_CURRENT_SOURCE_DIR}/debian/postrm"
+)
+
+include(CPack)
