@@ -17,6 +17,7 @@ class Server
     RequestHandler handler_;
     // Слабые ссылки: закрывшаяся сессия исчезает из реестра сама.
     std::vector<std::weak_ptr<Session>> sessions_;
+    unsigned short port_ = 0;
 
     void accept();
     void forgetClosedSessions();

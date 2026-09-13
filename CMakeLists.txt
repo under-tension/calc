@@ -135,6 +135,9 @@ add_executable(
   tests/CalculatorTest.cpp
   tests/CheckerTest.cpp
   tests/parser/JsonParserTest.cpp
+  tests/protocol/MessagesTest.cpp
+  tests/cache/HashTableCacheTest.cpp
+  tests/config/DotEnvTest.cpp
   tests/net/ServerTest.cpp
 )
 

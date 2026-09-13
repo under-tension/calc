@@ -6,8 +6,6 @@
 
 namespace protocol
 {
-// Статус ответа, когда сообщение не удалось разобрать или оно не является
-// заданием на расчёт.
 constexpr int PROTOCOL_ERROR_STATUS = -1;
 
 enum class MessageType
@@ -18,7 +16,6 @@ enum class MessageType
     UNKNOWN
 };
 
-// Задание на расчёт: {"type": "request", "val1": 2, "val2": 4, "operation": "+"}
 class CalculationRequest
 {
   public:
@@ -33,14 +30,12 @@ class CalculationRequest
         operation(operation), operand1(operand1), operand2(operand2)
     {}
 
-    // Читаемое описание задания для логов: "5 / 0", "3!".
     std::string describe() const;
 
     nlohmann::json toJson() const;
     static CalculationRequest fromJson(const nlohmann::json& json);
 };
 
-// Результат расчёта: {"type": "response", "result": 6, "status": 0, "error": ""}
 class CalculationResponse
 {
   public:
@@ -56,15 +51,13 @@ class CalculationResponse
 
     bool failed() const
     {
-        return !error.empty();
+        return status != 0;
     }
 
     nlohmann::json toJson() const;
     static CalculationResponse fromJson(const nlohmann::json& json);
 };
 
-// Уведомление о завершении работы сервера:
-// {"type": "shutdown", "message": "..."}
 class ShutdownNotice
 {
   public:
@@ -79,10 +72,6 @@ class ShutdownNotice
     static ShutdownNotice fromJson(const nlohmann::json& json);
 };
 
-// Сообщение без поля type считается заданием на расчёт — так формат остаётся
-// совместимым с заданиями, которые передаются в командной строке.
 MessageType messageTypeOf(const nlohmann::json& json);
-
-// Одно сообщение — одна строка JSON, завершённая переводом строки.
 std::string encodeLine(const nlohmann::json& json);
 } // namespace protocol

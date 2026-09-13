@@ -22,38 +22,6 @@ void ConsoleApplication::info(const std::string& message)
     loggers::SpdLogger::GetInstance().info(message);
 }
 
-void ConsoleApplication::run(int argc, char** argv)
-{
-    try
-    {
-        std::string json_str;
-
-        // NOLINTNEXTLINE(altera-unroll-loops)
-        for (int i = optind; i < argc; ++i)
-        {
-            if (!json_str.empty())
-            {
-                json_str += ' ';
-            }
-
-            json_str += argv[i];
-        }
-
-        if (json_str.empty())
-        {
-            ConsoleApplication::error("No JSON input provided");
-            Options::printHelp(argv[0]);
-            return;
-        }
-
-        processOperation(json_str);
-    }
-    catch (const std::exception& e)
-    {
-        ConsoleApplication::error(e.what());
-    }
-}
-
 model::OperationModel
     ConsoleApplication::execute(model::OperationModel operationModel)
 {

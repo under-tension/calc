@@ -58,7 +58,15 @@ Options Options::parse(int argc, char** argv)
         }
     }
 
-    options.firstArgument = optind;
+    for (int i = optind; i < argc; ++i)
+    {
+        if (!options.task.empty())
+        {
+            options.task += ' ';
+        }
+
+        options.task += argv[i];
+    }
 
     return options;
 }

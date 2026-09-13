@@ -11,7 +11,7 @@ Server::Server(boost::asio::io_context& context, const std::string& host,
                unsigned short port, RequestHandler handler) :
     acceptor_(context, boost::asio::ip::tcp::endpoint(
                            boost::asio::ip::make_address(host), port)),
-    handler_(std::move(handler))
+    handler_(std::move(handler)), port_(acceptor_.local_endpoint().port())
 {}
 
 void Server::start()
@@ -74,6 +74,6 @@ void Server::shutdown()
 
 unsigned short Server::port() const
 {
-    return acceptor_.local_endpoint().port();
+    return port_;
 }
 } // namespace net

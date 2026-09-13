@@ -29,7 +29,5 @@ class IApplication
     {
         Application::info(message);
     };
-
-    virtual void run(int argc, char** argv) = 0;
 };
 } // namespace app

@@ -33,6 +33,7 @@ int main(int argc, char** argv)
         }
 
         loggers::SpdLogger::Configure(config.logPath);
+        loggers::SpdLogger::GetInstance();
 
         std::optional<app::PidFile> pidFile;
         if (options.daemon)
@@ -55,9 +56,9 @@ int main(int argc, char** argv)
                                     std::move(cache));
 
         // Задание передано аргументом — выполняем разово, как раньше.
-        if (options.firstArgument < argc)
+        if (!options.task.empty())
         {
-            app.run(argc, argv);
+            app.processOperation(options.task);
 
             return 0;
         }
@@ -72,9 +73,15 @@ int main(int argc, char** argv)
     }
     catch (const std::exception& e)
     {
-        loggers::SpdLogger::GetInstance().error(e.what());
-
         std::cerr << "Fatal: " << e.what() << std::endl;
+
+        try
+        {
+            loggers::SpdLogger::GetInstance().error(e.what());
+        }
+        catch (const std::exception&)
+        {
+        }
 
         return 1;
     }

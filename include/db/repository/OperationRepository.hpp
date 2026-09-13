@@ -3,10 +3,8 @@
 #include "db/connection/Connection.hpp"
 #include "model/OperationModel.hpp"
 
-#include <postgresql/libpq-fe.h>
+#include <libpq-fe.h>
 
-#include <memory>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -23,6 +21,5 @@ class OperationRepository
 
     void insert(const model::OperationModel& operation);
     std::vector<model::OperationModel> findAll();
-    // std::optional<model::OperationModel> findById(unsigned id);
 };
 } // namespace db::repository

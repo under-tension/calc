@@ -13,9 +13,8 @@ class Options
     std::string configPath = "";
     // Флаг вроде -h или -v уже отработал, продолжать не нужно.
     bool shouldExit = false;
-    // Индекс первого аргумента, не являющегося флагом: с него начинается
-    // задание для разового запуска.
-    int firstArgument = 1;
+    // Задание для разового запуска. Пустое — работаем как сервис.
+    std::string task = "";
 
     static Options parse(int argc, char** argv);
 
