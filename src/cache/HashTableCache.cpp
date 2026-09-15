@@ -17,7 +17,7 @@ bool OperationEq::operator()(const model::OperationModel& a,
     }
 
     return a.operand1 == b.operand1 && a.operand2 == b.operand2;
-};
+}
 
 size_t
     OperationHash::operator()(const model::OperationModel& model) const noexcept
@@ -37,12 +37,12 @@ size_t
     }
 
     return std::hash<std::string>{}(hash);
-};
+}
 
 std::optional<model::OperationModel>
     HashTableCache::get(const model::OperationModel& key)
 {
-    auto it = map_.find(key);
+    const auto it = map_.find(key);
 
     if (it != map_.end())
     {

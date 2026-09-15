@@ -1,6 +1,12 @@
 *.out
 calc
+calc_client
 /build
 /logs/*
 perf.data
 .vscode
+.env
+*.pid
+*.deb
+_CPack_Packages
+/build-tsan

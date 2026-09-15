@@ -3,11 +3,9 @@
 #include "cache/ICache.hpp"
 #include "model/OperationModel.hpp"
 
-#include <functional>
-#include <iostream>
+#include <cstddef>
 #include <optional>
 #include <unordered_map>
-#include <vector>
 
 namespace cache
 {

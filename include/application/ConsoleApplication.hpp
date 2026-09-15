@@ -14,14 +14,13 @@
 #include "parser/JsonParser.hpp"
 #include "printer/ConsolePrinter.hpp"
 #include "printer/IPrinter.hpp"
-
-#include <getopt.h>
+#include "protocol/Messages.hpp"
 
 namespace app
 {
 class ConsoleApplication : public IApplication<ConsoleApplication>
 {
-  public:
+  private:
     std::unique_ptr<parsers::IParser> parser;
     Checker checker;
     Calculator calculator;
@@ -30,6 +29,9 @@ class ConsoleApplication : public IApplication<ConsoleApplication>
     std::unique_ptr<db::repository::OperationRepository> operation_repo;
     std::unique_ptr<cache::ICache> cache;
 
+    model::OperationModel execute(model::OperationModel operationModel);
+
+  public:
     ConsoleApplication(
         std::unique_ptr<parsers::IParser> parser, Checker checker,
         Calculator calc, std::unique_ptr<printers::IPrinter> printer,
@@ -38,16 +40,21 @@ class ConsoleApplication : public IApplication<ConsoleApplication>
         std::unique_ptr<cache::ICache> cache) :
         parser(std::move(parser)), checker(checker), calculator(calc),
         printer(std::move(printer)), conn(std::move(conn)),
-        operation_repo(std::move(repo)), cache(std::move(cache)) {};
+        operation_repo(std::move(repo)), cache(std::move(cache))
+    {}
 
     static loggers::ILogger& logger();
     static void error(const std::string&);
     static void warn(const std::string&);
     static void info(const std::string&);
 
-    virtual void run(int argc, char** argv) override;
+    // Обработка одного задания, пришедшего строкой: разбор -> расчёт ->
+    // проверка статуса -> печать результата.
+    void processOperation(const std::string& json_str);
 
-    int process_flags(int argc, char** argv);
-    void print_help(const char* prog);
+    // Обработка задания, пришедшего по сети: возвращает результат вместо
+    // печати, ошибку отдаёт в ответе.
+    protocol::CalculationResponse
+        processRequest(const protocol::CalculationRequest& request);
 };
 } // namespace app

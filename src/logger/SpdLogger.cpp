@@ -15,6 +15,21 @@ void SpdLogger::info(const std::string& message)
     spdLogger_->info(message);
 }
 
+std::string& SpdLogger::LogPath()
+{
+    static std::string path = "logs/app.log";
+
+    return path;
+}
+
+void SpdLogger::Configure(const std::string& logPath)
+{
+    if (!logPath.empty())
+    {
+        LogPath() = logPath;
+    }
+}
+
 std::shared_ptr<spdlog::logger> SpdLogger::CreateLogger()
 {
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
@@ -23,12 +38,14 @@ std::shared_ptr<spdlog::logger> SpdLogger::CreateLogger()
     const unsigned rotstion_limit = 3;
     const unsigned file_log_size = 1024 * 1024 * 5; // 5 MB
     auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
-        "logs/app.log", file_log_size, rotstion_limit);
+        LogPath(), file_log_size, rotstion_limit);
 
     file_sink->set_level(spdlog::level::trace);
 
     auto spdLogger = std::make_shared<spdlog::logger>(
         "multi_sink", spdlog::sinks_init_list{console_sink, file_sink});
+
+    spdLogger->flush_on(spdlog::level::trace);
 
     return spdLogger;
 }

@@ -14,6 +14,8 @@ namespace loggers
 class SpdLogger : public ILogger
 {
   public:
+    static void Configure(const std::string& logPath);
+
     static SpdLogger& GetInstance();
 
     SpdLogger(const SpdLogger&) = delete;
@@ -29,6 +31,8 @@ class SpdLogger : public ILogger
     explicit SpdLogger(std::shared_ptr<spdlog::logger> logger);
 
     static std::shared_ptr<spdlog::logger> CreateLogger();
+
+    static std::string& LogPath();
 
     std::shared_ptr<spdlog::logger> spdLogger_;
 };

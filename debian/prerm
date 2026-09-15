@@ -1,0 +1,14 @@
+#!/bin/sh
+# Служба останавливается до того, как исчезнут её файлы.
+set -e
+
+case "$1" in
+    remove|deconfigure)
+        if [ -d /run/systemd/system ]; then
+            systemctl stop calc.service >/dev/null 2>&1 || true
+            systemctl disable calc.service >/dev/null 2>&1 || true
+        fi
+        ;;
+esac
+
+exit 0

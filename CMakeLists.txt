@@ -1,8 +1,23 @@
 cmake_minimum_required(VERSION 3.25)
 
-project(calc)
+project(calc VERSION 1.0.0)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include(GNUInstallDirs)
 
 find_package(PostgreSQL REQUIRED)
+find_package(Threads REQUIRED)
+
+option(ENABLE_TSAN "Build with ThreadSanitizer" OFF)
+
+if(ENABLE_TSAN)
+    message(STATUS "ThreadSanitizer enabled")
+
+    add_compile_options(-fsanitize=thread -g -O1 -fno-omit-frame-pointer)
+    add_link_options(-fsanitize=thread)
+endif()
 
 include(FetchContent)
 
@@ -33,58 +48,111 @@ FetchContent_Declare(
     GIT_TAG v1.17.0
 )
 
-FetchContent_MakeAvailable(libmath json spdlog googletest)
+set(BOOST_INCLUDE_LIBRARIES asio)
+set(BOOST_ENABLE_CMAKE ON)
 
-add_executable(calc
-    src/main.cpp
+FetchContent_Declare(
+    boost
+    URL
+    https://github.com/boostorg/boost/releases/download/boost-1.88.0/boost-1.88.0-cmake.tar.xz
+)
+
+FetchContent_MakeAvailable(libmath json spdlog googletest boost)
+
+# Общий код: доступен и серверу, и клиенту, и тестам.
+add_library(calc_core STATIC
     src/Calculator.cpp
     src/Checker.cpp
     src/application/ConsoleApplication.cpp
+    src/application/ServiceRunner.cpp
+    src/application/Daemon.cpp
+    src/application/Options.cpp
+    src/application/PidFile.cpp
     src/printer/ConsolePrinter.cpp
     src/parser/JsonParser.cpp
+    src/protocol/Messages.cpp
+    src/config/ServerConfig.cpp
+    src/config/AppConfig.cpp
+    src/config/DotEnv.cpp
     src/logger/SpdLogger.cpp
+    src/signal/SignalHandler.cpp
+    src/net/Server.cpp
+    src/net/Session.cpp
+    src/net/Client.cpp
     src/db/repository/OperationRepository.cpp
     src/cache/HashTableCache.cpp
     src/cache/PgCacheHydrator.cpp
 )
 
-target_link_libraries(calc PRIVATE
+target_link_libraries(calc_core PUBLIC
     libmath
     nlohmann_json::nlohmann_json
     spdlog::spdlog
     PostgreSQL::PostgreSQL
+    Boost::asio
+    Threads::Threads
 )
 
-target_include_directories(calc
+target_include_directories(calc_core
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-install(TARGETS calc
+target_compile_definitions(calc_core PUBLIC CALC_VERSION="${PROJECT_VERSION}")
+
+add_executable(calc src/main.cpp)
+target_link_libraries(calc PRIVATE calc_core)
+
+add_executable(calc_client src/client_main.cpp)
+target_link_libraries(calc_client PRIVATE calc_core)
+
+install(TARGETS calc calc_client
     RUNTIME DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+install(TARGETS calc calc_client
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT service
+    EXCLUDE_FROM_ALL
+)
+
+install(FILES systemd/calc.service
+    DESTINATION lib/systemd/system
+    COMPONENT service
+    EXCLUDE_FROM_ALL
+)
+
+install(FILES .env.example
+    DESTINATION /etc/calc
+    RENAME calc.env
+    PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ
+    COMPONENT service
+    EXCLUDE_FROM_ALL
+)
+
+install(DIRECTORY migrations/
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/calc/migrations
+    COMPONENT service
+    EXCLUDE_FROM_ALL
+    FILES_MATCHING PATTERN "*.sql"
 )
 
 enable_testing()
 
 add_executable(
   tests
-  src/Calculator.cpp
-  src/Checker.cpp
-  src/parser/JsonParser.cpp
   tests/CalculatorTest.cpp
   tests/CheckerTest.cpp
   tests/parser/JsonParserTest.cpp
-)
-
-target_include_directories(tests
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+  tests/protocol/MessagesTest.cpp
+  tests/cache/HashTableCacheTest.cpp
+  tests/config/DotEnvTest.cpp
+  tests/net/ServerTest.cpp
 )
 
 target_link_libraries(tests PRIVATE
-    libmath
+    calc_core
     GTest::gtest_main
-    nlohmann_json::nlohmann_json
 )
 
 include(GoogleTest)
@@ -142,6 +210,47 @@ if(ENABLE_VALGRIND)
     )
     
     set_tests_properties(tests_memcheck PROPERTIES TIMEOUT 300)
-    
+
     message(STATUS "Valgrind test enabled: run with 'ctest -R tests_memcheck'")
 endif()
+
+# Сборка deb-пакета: cpack --config build/CPackConfig.cmake
+set(CPACK_GENERATOR "DEB")
+
+set(CPACK_PACKAGE_NAME "calc")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+    "Calculator TCP service with PostgreSQL storage")
+
+set(CPACK_PACKAGE_CONTACT "calc maintainers <noname@example.com>"
+    CACHE STRING "Package maintainer")
+
+set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
+
+set(CPACK_DEB_COMPONENT_INSTALL ON)
+set(CPACK_COMPONENTS_ALL service)
+
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
+set(CPACK_DEBIAN_PACKAGE_SECTION "utils")
+set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+
+set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "postgresql-client")
+
+set(CPACK_DEBIAN_PACKAGE_CONTROL_STRICT_PERMISSION ON)
+
+set(CPACK_DEBIAN_SERVICE_PACKAGE_NAME "calc")
+set(CPACK_DEBIAN_SERVICE_FILE_NAME "DEB-DEFAULT")
+
+set(CALC_CONFFILES "${CMAKE_CURRENT_BINARY_DIR}/debian/conffiles")
+file(WRITE "${CALC_CONFFILES}" "/etc/calc/calc.env\n")
+
+set(CPACK_DEBIAN_SERVICE_PACKAGE_CONTROL_EXTRA
+    "${CALC_CONFFILES}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/debian/postinst"
+    "${CMAKE_CURRENT_SOURCE_DIR}/debian/prerm"
+    "${CMAKE_CURRENT_SOURCE_DIR}/debian/postrm"
+)
+
+include(CPack)
