@@ -2,16 +2,19 @@
 
 namespace printers
 {
-void ConsolePrinter::print(const app::Task& task)
+void ConsolePrinter::print(const model::OperationModel& operationModel)
 {
-    if (task.operation == '!')
+    if (operationModel.operation_type == "!")
     {
-        std::cout << task.val1 << "! = " << task.result << std::endl;
+        std::cout << operationModel.operand1 << "! = " << operationModel.result
+                  << std::endl;
     }
     else
     {
-        std::cout << task.val1 << " " << task.operation << " " << task.val2
-                  << " = " << task.result << std::endl;
+        std::cout << operationModel.operand1 << " "
+                  << operationModel.operation_type << " "
+                  << operationModel.operand2 << " = " << operationModel.result
+                  << std::endl;
     }
 }
 } // namespace printers

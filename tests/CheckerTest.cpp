@@ -1,11 +1,11 @@
 #include "Checker.hpp"
 
-#include "Task.hpp"
+#include "model/OperationModel.hpp"
 
 #include <gtest/gtest.h>
 
-using app::StatusTask;
-using app::Task;
+using model::OperationModel;
+using model::StatusOperation;
 
 class CheckerTest : public testing::Test
 {
@@ -22,49 +22,55 @@ class CheckerTest : public testing::Test
 
 TEST_F(CheckerTest, HandlesPositiveInput)
 {
-    Task task = {5, 3, 8, static_cast<int>(StatusTask::OK), '+'};
-    EXPECT_NO_THROW(checker.check(task));
+    OperationModel operationModel = {"+", 5, 3, 8,
+                                     static_cast<int>(StatusOperation::OK)};
+    EXPECT_NO_THROW(checker.check(operationModel));
 }
 
 TEST_F(CheckerTest, NotEnoughArgs)
 {
-    Task task = {5, 0, 0, static_cast<int>(StatusTask::NOT_ENOUGH_ARGS), '+'};
-    EXPECT_THROW(checker.check(task), std::runtime_error);
+    OperationModel operationModel = {
+        "+", 5, 0, 0, static_cast<int>(StatusOperation::NOT_ENOUGH_ARGS)};
+    EXPECT_THROW(checker.check(operationModel), std::runtime_error);
 }
 
 TEST_F(CheckerTest, NoOperation)
 {
-    Task task = {5, 3, 0, static_cast<int>(StatusTask::NO_OPERATION), '='};
-    EXPECT_THROW(checker.check(task), std::runtime_error);
+    OperationModel operationModel = {
+        "=", 5, 3, 0, static_cast<int>(StatusOperation::NO_OPERATION)};
+    EXPECT_THROW(checker.check(operationModel), std::runtime_error);
 }
 
 TEST_F(CheckerTest, DivisionByZero)
 {
-    Task task = {5, 0, 0, static_cast<int>(StatusTask::DIVISION_BY_ZERO), '/'};
-    EXPECT_THROW(checker.check(task), std::runtime_error);
+    OperationModel operationModel = {
+        "/", 5, 0, 0, static_cast<int>(StatusOperation::DIVISION_BY_ZERO)};
+    EXPECT_THROW(checker.check(operationModel), std::runtime_error);
 }
 
 TEST_F(CheckerTest, NegativeDegree)
 {
-    Task task = {2, -3, 0, static_cast<int>(StatusTask::NEGATIVE_DEGREE), '^'};
-    EXPECT_THROW(checker.check(task), std::runtime_error);
+    OperationModel operationModel = {
+        "^", 2, -3, 0, static_cast<int>(StatusOperation::NEGATIVE_DEGREE)};
+    EXPECT_THROW(checker.check(operationModel), std::runtime_error);
 }
 
 TEST_F(CheckerTest, NegativeFactorial)
 {
-    Task task = {-5, 0, 0, static_cast<int>(StatusTask::NEGATIVE_FACTORIAL),
-                 '!'};
-    EXPECT_THROW(checker.check(task), std::runtime_error);
+    OperationModel operationModel = {
+        "!", -5, 0, 0, static_cast<int>(StatusOperation::NEGATIVE_FACTORIAL)};
+    EXPECT_THROW(checker.check(operationModel), std::runtime_error);
 }
 
 TEST_F(CheckerTest, EmptyOperation)
 {
-    Task task = {5, 3, 0, static_cast<int>(StatusTask::NO_OPERATION), '\0'};
-    EXPECT_THROW(checker.check(task), std::runtime_error);
+    OperationModel operationModel = {
+        "\0", 5, 3, 0, static_cast<int>(StatusOperation::NO_OPERATION)};
+    EXPECT_THROW(checker.check(operationModel), std::runtime_error);
 }
 
 TEST_F(CheckerTest, UnknownError)
 {
-    Task task = {5, 3, 0, -3, '@'};
-    EXPECT_THROW(checker.check(task), std::runtime_error);
+    OperationModel operationModel = {"@", 5, 3, 0, -3};
+    EXPECT_THROW(checker.check(operationModel), std::runtime_error);
 }

@@ -5,7 +5,7 @@ namespace parsers
 
 using json = nlohmann::json;
 
-void JsonParser::parse(std::string input, app::Task& task)
+void JsonParser::parse(std::string input, model::OperationModel& operationModel)
 {
     json json = json::parse(input);
 
@@ -20,16 +20,16 @@ void JsonParser::parse(std::string input, app::Task& task)
         throw std::runtime_error("Operation cannot be empty");
     }
 
-    task.operation = operation[0];
+    operationModel.operation_type = operation[0];
 
-    if (task.operation == '!')
+    if (operationModel.operation_type == "!")
     {
         if (json.contains("val1") == false)
         {
             throw std::runtime_error("Values cannot be null");
         }
 
-        task.val1 = json.at("val1").get<int>();
+        operationModel.operand1 = json.at("val1").get<int>();
     }
     else
     {
@@ -38,8 +38,8 @@ void JsonParser::parse(std::string input, app::Task& task)
             throw std::runtime_error("Values cannot be null");
         }
 
-        task.val1 = json.at("val1").get<int>();
-        task.val2 = json.at("val2").get<int>();
+        operationModel.operand1 = json.at("val1").get<int>();
+        operationModel.operand2 = json.at("val2").get<int>();
     }
 }
 } // namespace parsers

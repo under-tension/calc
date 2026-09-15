@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Task.hpp"
+#include "model/OperationModel.hpp"
 
 #include <stdexcept>
 
@@ -9,6 +9,6 @@ namespace app
 class Checker
 {
   public:
-    void check(const Task& task);
+    void check(const model::OperationModel& operationModel);
 };
 } // namespace app

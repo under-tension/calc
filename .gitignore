@@ -2,3 +2,5 @@
 calc
 /build
 /logs/*
+perf.data
+.vscode
