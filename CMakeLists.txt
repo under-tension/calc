@@ -10,6 +10,15 @@ include(GNUInstallDirs)
 find_package(PostgreSQL REQUIRED)
 find_package(Threads REQUIRED)
 
+option(ENABLE_TSAN "Build with ThreadSanitizer" OFF)
+
+if(ENABLE_TSAN)
+    message(STATUS "ThreadSanitizer enabled")
+
+    add_compile_options(-fsanitize=thread -g -O1 -fno-omit-frame-pointer)
+    add_link_options(-fsanitize=thread)
+endif()
+
 include(FetchContent)
 
 FetchContent_Declare(

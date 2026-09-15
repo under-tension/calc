@@ -9,3 +9,4 @@ perf.data
 *.pid
 *.deb
 _CPack_Packages
+/build-tsan

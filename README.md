@@ -85,6 +85,32 @@ kill -TERM $(cat calc.pid)
 ./calc_client
 ```
 
+## Поиск гонок данных и взаимных блокировок
+
+Сборка с ThreadSanitizer делается в отдельном каталоге: совмещать анализатор
+с Valgrind нельзя, а флаги действуют на весь проект вместе с зависимостями.
+```
+cmake -B build-tsan -DENABLE_TSAN=ON -DCMAKE_BUILD_TYPE=Debug
+cmake --build build-tsan
+```
+
+Тесты поднимают сервер в отдельном потоке, поэтому проверяются вместе с ним:
+```
+TSAN_OPTIONS="second_deadlock_stack=1" ./build-tsan/tests
+```
+
+Тесты не задействуют поток обработки сигналов, поэтому его нужно проверить
+на живом сервисе: запустить сервер, обратиться к нему клиентом и остановить
+сигналом.
+```
+TSAN_OPTIONS="second_deadlock_stack=1 log_path=./tsan" ./build-tsan/calc &
+./build-tsan/calc_client '{"val1": 2, "val2": 4, "operation": "+"}'
+kill -TERM %1
+```
+
+Отчёты попадают в файлы `tsan.<pid>`. Если таких файлов нет и в выводе нет
+строк `WARNING: ThreadSanitizer`, гонок и взаимных блокировок не найдено.
+
 ## Сборка deb-пакета
 
 ```
